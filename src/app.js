@@ -4,12 +4,15 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Отключаем для локальной разработки
+}));
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
@@ -28,9 +31,12 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Статические файлы
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Basic routes for testing
-app.get('/', (req, res) => {
-  res.json({ 
+app.get('/api', (req, res) => {
+  res.json({
     message: 'BoardPro Free API',
     version: '1.0.0',
     status: 'OK'
@@ -143,12 +149,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler только для API маршрутов
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found'
   });
+});
+
+// Все остальные маршруты отдают index.html для SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 const PORT = process.env.PORT || 5000;

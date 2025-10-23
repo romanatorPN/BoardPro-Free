@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoardPro - Дашборд</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard {
+            min-height: 100vh;
+            background: var(--bg-light);
+        }
+
+        .navbar {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--error-color);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .welcome-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .welcome-card h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+
+        .welcome-card p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="navbar">
+            <h1>BoardPro</h1>
+            <div class="user-info">
+                <span class="user-name" id="userName">Загрузка...</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </nav>
+
+        <div class="content">
+            <div class="welcome-card">
+                <h2>Добро пожаловать в BoardPro!</h2>
+                <p>Вы успешно вошли в систему управления советами директоров</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Управление советами</h3>
+                    <p>Создавайте и управляйте советами директоров вашей организации</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Встречи и повестки</h3>
+                    <p>Планируйте встречи, создавайте повестки дня и протоколы</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Документы</h3>
+                    <p>Храните и управляйте важными документами в безопасном месте</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Члены совета</h3>
+                    <p>Управляйте членами совета, их ролями и правами доступа</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        // Проверка авторизации при загрузке
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data.user) {
+                    const user = data.data.user;
+                    document.getElementById('userName').textContent =
+                        `${user.first_name} ${user.last_name}`;
+                } else {
+                    // Токен невалиден, выходим
+                    logout();
+                }
+            } catch (error) {
+                console.error('Profile fetch error:', error);
+                logout();
+            }
+        });
+
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

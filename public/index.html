@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoardPro - Вход в систему</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="background">
+        <div class="auth-container">
+            <div class="auth-box">
+                <div class="auth-header">
+                    <h1>BoardPro</h1>
+                    <p>Система управления советами директоров</p>
+                </div>
+
+                <div class="tab-container">
+                    <button class="tab-button active" data-tab="login">Вход</button>
+                    <button class="tab-button" data-tab="register">Регистрация</button>
+                </div>
+
+                <!-- Форма входа -->
+                <form id="loginForm" class="auth-form active">
+                    <div class="alert" id="loginAlert" style="display: none;"></div>
+
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" name="email" required placeholder="admin@test.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" name="password" required placeholder="password">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Запомнить меня</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Войти</button>
+
+                    <div class="form-footer">
+                        <a href="#" class="link">Забыли пароль?</a>
+                    </div>
+
+                    <div class="demo-credentials">
+                        <strong>Тестовые данные:</strong><br>
+                        Email: admin@test.com<br>
+                        Пароль: password
+                    </div>
+                </form>
+
+                <!-- Форма регистрации -->
+                <form id="registerForm" class="auth-form">
+                    <div class="alert" id="registerAlert" style="display: none;"></div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Имя</label>
+                            <input type="text" id="firstName" name="first_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Фамилия</label>
+                            <input type="text" id="lastName" name="last_name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" name="password" required minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Подтвердите пароль</label>
+                        <input type="password" id="confirmPassword" name="confirm_password" required minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organizationName">Название организации</label>
+                        <input type="text" id="organizationName" name="organization_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>Я согласен с условиями использования</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>
