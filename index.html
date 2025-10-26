@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Помощник ведущего мафии (Enhanced)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 1000;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .settings-panel.open {
+            transform: translateX(0);
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.8);
+            color: black;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(255, 215, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-section h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .setting-item input[type="file"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            padding: 8px;
+            color: white;
+        }
+
+        .setting-item input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .setting-item input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .color-preset {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-preset:hover {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .color-preset.active {
+            border-color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 60px;
+            border-radius: 10px;
+            margin: 10px 0;
+            background: var(--primary-color, #1e3c72);
+            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--secondary-color, #2a5298) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 10px;
+            margin: 0 10px;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .language-selector select {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector select:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #ffd700;
+        }
+
+        .language-selector select option {
+            background: #2a5298;
+            color: white;
+            padding: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-top: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.5em;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button.secondary {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        button.danger {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        button.success {
+            background: linear-gradient(45deg, #2ed573, #1e90ff);
+        }
+
+        button.warning {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+        }
+
+        .settings-button {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        select option {
+            background: #2a5298;
+            color: white;
+            padding: 5px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .role-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .role-details {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .role-name-input {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .role-type-badge {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid #ffd700;
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 12px;
+            color: #ffd700;
+        }
+
+        .role-description {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .role-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .custom-role-form {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+            width: auto;
+        }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .player-card.dead {
+            opacity: 0.5;
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff4757;
+        }
+
+        .player-card.alive {
+            border-color: #2ed573;
+        }
+
+        .vote-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .vote-counter input {
+            width: 60px;
+            text-align: center;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .vote-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .vote-btn.minus {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .night-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .role-action {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .custom-action {
+            background: rgba(255, 255, 255, 0.08);
+            border-left-color: #ff6b6b;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-layout {
+            display: flex;
+            gap: 20px;
+        }
+
+        .roles-sidebar {
+            flex: 0 0 280px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .roles-sidebar h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .role-reference-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .role-reference-item.dead {
+            opacity: 0.5;
+            border-left-color: #ff4757;
+        }
+
+        .role-reference-item.custom {
+            border-left-color: #ff6b6b;
+        }
+
+        .role-number {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ffd700;
+        }
+
+        .role-name {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-top: 3px;
+        }
+
+        .game-main {
+            flex: 1;
+        }
+
+        .nominated-player {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin: 5px;
+            color: #ffd700;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .nominated-player .remove-nomination {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voting-only-nominated {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .voting-only-nominated h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .voting-results {
+            background: rgba(46, 213, 115, 0.1);
+            border: 2px solid #2ed573;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .elimination-section {
+            background: rgba(255, 71, 87, 0.1);
+            border: 2px solid #ff4757;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .elimination-section h3 {
+            color: #ff4757;
+            margin-bottom: 10px;
+        }
+
+        .error-correction-panel {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,165,0,0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255,165,0,0.3);
+        }
+
+        .error-correction-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .error-correction-controls select {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .search-hint {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .search-hint.yes {
+            background: rgba(46, 213, 115, 0.2);
+            border-color: #2ed573;
+            color: #2ed573;
+        }
+
+        .search-hint.no {
+            background: rgba(255, 71, 87, 0.2);
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+
+        .game-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .tab-button:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .tab-button.active {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+        }
+
+        .custom-action-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        /* Стили для таймера */
+        .timer-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .timer-section h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .timer-circle {
+            width: 120px;
+            height: 120px;
+            border: 4px solid #ffd700;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 215, 0, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timer-circle.running {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        .timer-circle.warning {
+            border-color: #ffa726;
+            background: rgba(255, 167, 38, 0.1);
+            animation: pulse 1s infinite;
+        }
+
+        .timer-circle.danger {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .timer-time {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .timer-status {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-top: 2px;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .timer-preset {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+
+        .timer-preset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-preset.active {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .timer-control {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .timer-control.start {
+            background: linear-gradient(45deg, #2ed573, #1e90ff);
+        }
+
+        .timer-control.pause {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+        }
+
+        .timer-control.stop {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        .timer-control:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-control:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timer-add-time {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .timer-add-time span {
+            color: #ffd700;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .timer-add {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .timer-add:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-add:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .timer-sound {
+            margin-top: 15px;
+        }
+
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            color: #ffd700;
+        }
+
+        .sound-toggle input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .game-layout {
+                flex-direction: column;
+            }
+
+            .roles-sidebar {
+                flex: none;
+                max-height: 200px;
+            }
+
+            .settings-panel {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100vh;
+                max-width: none;
+                max-height: none;
+                border-radius: 0;
+                overflow-y: auto;
+            }
+
+            .settings-toggle {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                z-index: 1002;
+            }
+
+            .error-correction-controls {
+                flex-direction: column;
+            }
+
+            .error-correction-controls select,
+            .error-correction-controls button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .player-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .night-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .language-selector {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            .timer-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .timer-time {
+                font-size: 1.5em;
+            }
+
+            .timer-presets {
+                gap: 5px;
+            }
+
+            .timer-preset {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-width: 50px;
+            }
+
+            .timer-controls {
+                gap: 10px;
+            }
+
+            .timer-control {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: 80px;
+            }
+
+            .timer-add-time {
+                gap: 5px;
+            }
+
+            .timer-add {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-section">
+            <h3>🎨 Внешний вид</h3>
+
+            <div class="setting-item">
+                <label>Логотип:</label>
+                <input type="file" id="logoUpload" accept="image/*" onchange="uploadLogo(event)">
+                <button class="settings-button" onclick="clearLogo()">Очистить логотип</button>
+            </div>
+
+            <div class="setting-item">
+                <label>Фоновое изображение:</label>
+                <input type="file" id="backgroundUpload" accept="image/*" onchange="uploadBackground(event)">
+                <button class="settings-button" onclick="clearBackground()">Очистить фон</button>
+            </div>
+
+            <div class="setting-item">
+                <label>Прозрачность фона:</label>
+                <input type="range" id="backgroundOpacity" min="0" max="100" value="100" oninput="updateBackgroundOpacity(this.value)">
+                <span id="opacityValue">100%</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>🌈 Цветовая схема</h3>
+
+            <div class="setting-item">
+                <label>Основной цвет:</label>
+                <input type="color" id="primaryColor" value="#1e3c72" onchange="updateColors()">
+            </div>
+
+            <div class="setting-item">
+                <label>Дополнительный цвет:</label>
+                <input type="color" id="secondaryColor" value="#2a5298" onchange="updateColors()">
+            </div>
+
+            <div class="setting-item">
+                <label>Цвет акцента:</label>
+                <input type="color" id="accentColor" value="#ffd700" onchange="updateColors()">
+            </div>
+
+            <div class="setting-item">
+                <label>Готовые схемы:</label>
+                <div style="margin-top: 10px;">
+                    <div class="color-preset" style="background: linear-gradient(45deg, #1e3c72, #2a5298);" onclick="applyColorPreset('#1e3c72', '#2a5298', '#ffd700')"></div>
+                    <div class="color-preset" style="background: linear-gradient(45deg, #2c3e50, #4a6741);" onclick="applyColorPreset('#2c3e50', '#4a6741', '#e74c3c')"></div>
+                    <div class="color-preset" style="background: linear-gradient(45deg, #8e44ad, #3498db);" onclick="applyColorPreset('#8e44ad', '#3498db', '#f39c12')"></div>
+                    <div class="color-preset" style="background: linear-gradient(45deg, #e74c3c, #c0392b);" onclick="applyColorPreset('#e74c3c', '#c0392b', '#f1c40f')"></div>
+                    <div class="color-preset" style="background: linear-gradient(45deg, #16a085, #27ae60);" onclick="applyColorPreset('#16a085', '#27ae60', '#e67e22')"></div>
+                    <div class="color-preset" style="background: linear-gradient(45deg, #2c3e50, #34495e);" onclick="applyColorPreset('#2c3e50', '#34495e', '#9b59b6')"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label>Предпросмотр:</label>
+                <div class="preview-box" id="colorPreview">Предпросмотр цветов</div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>🔧 Настройки</h3>
+
+            <div class="setting-item">
+                <button class="settings-button" onclick="resetSettings()">Сбросить настройки</button>
+                <button class="settings-button" onclick="exportSettings()">Экспорт настроек</button>
+                <input type="file" id="importSettings" accept=".json" onchange="importSettings(event)" style="display: none;">
+                <button class="settings-button" onclick="document.getElementById('importSettings').click()">Импорт настроек</button>
+                <button class="settings-button" onclick="exportRoles()">💾 Экспорт ролей</button>
+                <input type="file" id="importRoles" accept=".json" onchange="importRoles(event)" style="display: none;">
+                <button class="settings-button" onclick="document.getElementById('importRoles').click()">📂 Импорт ролей</button>
+                <button class="settings-button" onclick="exportLog()">📋 Скачать лог</button>
+                <button class="settings-button" onclick="emailLog()">📧 Отправить лог</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="language-selector">
+            <select id="languageSelector" onchange="changeLanguage(this.value)">
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="en">🇺🇸 English</option>
+            </select>
+        </div>
+
+        <div class="logo-container">
+            <img id="logoImage" class="logo-image hidden" alt="Логотип">
+            <h1 id="mainTitle">🎭 Помощник ведущего мафии (Enhanced)</h1>
+        </div>
+
+        <div class="tab-buttons">
+            <div class="tab-button active" onclick="showTab('setup')" id="setupTab">Настройка</div>
+            <div class="tab-button" onclick="showTab('game')" id="gameTab">Игра</div>
+            <div class="tab-button" onclick="showTab('log')" id="logTab">Лог</div>
+        </div>
+
+        <!-- Настройка игры -->
+        <div id="setup-tab" class="tab-content">
+            <div class="section">
+                <h2 id="rolesSetupTitle">Настройка ролей</h2>
+
+                <!-- Форма добавления кастомной роли -->
+                <div class="custom-role-form hidden" id="custom-role-form">
+                    <h3 style="color: #ffd700; margin-bottom: 15px;" id="createRoleTitle">➕ Создание новой роли</h3>
+
+                    <div class="form-group">
+                        <label id="roleNameLabel">Название роли:</label>
+                        <input type="text" id="new-role-name" placeholder="Введите название роли">
+                    </div>
+
+                    <div class="form-group">
+                        <label id="roleDescLabel">Описание роли:</label>
+                        <textarea id="new-role-description" placeholder="Опишите роль и её способности"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="roleTypeLabel">Тип роли:</label>
+                        <select id="new-role-type">
+                            <option value="town" id="townOption">Мирная</option>
+                            <option value="mafia" id="mafiaOption">Мафия</option>
+                            <option value="neutral" id="neutralOption">Нейтральная</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="nightActionsLabel">Ночные действия:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-kill">
+                                <label for="action-kill" id="canKillLabel">Может убивать</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-heal">
+                                <label for="action-heal" id="canHealLabel">Может лечить</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-search">
+                                <label for="action-search" id="canSearchLabel">Может проверять</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-block">
+                                <label for="action-block" id="canBlockLabel">Может блокировать</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-passive">
+                                <label for="action-passive" id="passiveAbilityLabel">Пассивная способность</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="action-custom">
+                                <label for="action-custom" id="specialActionLabel">Особое действие</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="custom-action-details" style="display: none;">
+                        <label id="customActionDescLabel">Описание особого действия:</label>
+                        <textarea id="custom-action-description" placeholder="Опишите, что именно делает роль ночью и как это должно обрабатываться"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="specialPropsLabel">Особые свойства:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="property-immortal">
+                                <label for="property-immortal" id="immortalLabel">Неуязвимая ночью</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="property-suicide">
+                                <label for="property-suicide" id="suicideLabel">Умирает при использовании способности</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="property-detective">
+                                <label for="property-detective" id="detectiveLabel">Видна проверяющим как мафия</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="property-innocent">
+                                <label for="property-innocent" id="innocentLabel">Всегда видна как мирная</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="success" onclick="saveCustomRole()" id="saveRoleBtn">✅ Сохранить роль</button>
+                        <button class="secondary" onclick="cancelCustomRole()" id="cancelRoleBtn">❌ Отмена</button>
+                    </div>
+                </div>
+
+                <div id="roles-list">
+                    <!-- Роли будут добавлены через JavaScript -->
+                </div>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="showCustomRoleForm()" id="createRoleBtn">➕ Создать роль</button>
+                    <button class="secondary" onclick="resetRoles()" id="resetRolesBtn">🔄 Сбросить к стандартным</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 id="gameSetupTitle">Настройка игры</h2>
+                <div>
+                    <label id="playerCountLabel">Количество игроков: </label>
+                    <input type="number" id="playerCount" min="4" max="20" value="10">
+                    <button onclick="setupPlayers()" id="createPlayersBtn">Создать игроков</button>
+                </div>
+                <div id="players-setup" class="hidden">
+                    <h3 id="roleDistributionTitle">Распределение ролей</h3>
+                    <div id="players-grid" class="player-grid"></div>
+                    <button class="success" onclick="startGame()" id="startGameBtn">🎮 Начать игру</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Игровой процесс -->
+        <div id="game-tab" class="tab-content hidden">
+            <div class="game-layout">
+                <div class="roles-sidebar">
+                    <h3 id="rolesListTitle">📋 Список ролей</h3>
+                    <div id="roles-reference"></div>
+                </div>
+                <div class="game-main">
+                    <div class="section">
+                        <h2 id="playersTitle">Игроки</h2>
+
+                        <!-- Панель исправления ошибок -->
+                        <div class="error-correction-panel">
+                            <strong id="errorCorrectionTitle">⚠️ Исправление ошибок:</strong>
+                            <div class="error-correction-controls">
+                                <select id="revivePlayer">
+                                    <option value="" id="revivePlayerOption">Воскресить игрока</option>
+                                </select>
+                                <button class="warning" onclick="revivePlayer()" style="padding: 8px 16px;" id="reviveBtn">♻️ Воскресить</button>
+                                <select id="changeRolePlayer">
+                                    <option value="" id="changeRolePlayerOption">Сменить роль игрока</option>
+                                </select>
+                                <select id="newRoleForPlayer">
+                                    <option value="" id="newRoleOption">Новая роль</option>
+                                </select>
+                                <button class="warning" onclick="changePlayerRole()" style="padding: 8px 16px;" id="changeRoleBtn">🔄 Сменить</button>
+                            </div>
+                        </div>
+
+                        <div id="game-players" class="player-grid"></div>
+                    </div>
+
+                    <div class="section">
+                        <h2 id="dayPhaseTitle">Дневная фаза</h2>
+
+                        <!-- Таймер дневной фазы -->
+                        <div class="timer-section">
+                            <h3 id="dayTimerTitle">⏱️ Таймер дневной фазы</h3>
+                            <div class="timer-display">
+                                <div class="timer-circle">
+                                    <div class="timer-time" id="timer-display">00:00</div>
+                                    <div class="timer-status" id="timer-status">Готов</div>
+                                </div>
+                            </div>
+
+                            <div class="timer-presets">
+                                <button class="timer-preset" onclick="setTimer(15)" id="timer15">15 сек</button>
+                                <button class="timer-preset" onclick="setTimer(30)" id="timer30">30 сек</button>
+                                <button class="timer-preset" onclick="setTimer(60)" id="timer60">1 мин</button>
+                                <button class="timer-preset" onclick="setTimer(120)" id="timer120">2 мин</button>
+                            </div>
+
+                            <div class="timer-controls">
+                                <button class="timer-control start" onclick="startTimer()" id="startTimerBtn">▶️ Старт</button>
+                                <button class="timer-control pause" onclick="pauseTimer()" id="pauseTimerBtn">⏸️ Пауза</button>
+                                <button class="timer-control stop" onclick="stopTimer()" id="stopTimerBtn">⏹️ Стоп</button>
+                            </div>
+
+                            <div class="timer-add-time">
+                                <span id="addTimeLabel">Добавить время:</span>
+                                <button class="timer-add" onclick="addTime(15)" id="add15">+15с</button>
+                                <button class="timer-add" onclick="addTime(30)" id="add30">+30с</button>
+                                <button class="timer-add" onclick="addTime(60)" id="add60">+1м</button>
+                            </div>
+
+                            <div class="timer-sound">
+                                <label class="sound-toggle">
+                                    <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
+                                    <span id="soundLabel">🔔 Звуковой сигнал</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 id="nominationTitle">Номинация игроков</h3>
+                            <div style="margin: 10px 0;">
+                                <select id="nominatePlayer">
+                                    <option value="" id="selectPlayerNomination">Выберите игрока для номинации</option>
+                                </select>
+                                <button class="secondary" onclick="nominatePlayer()" id="nominateBtn">📋 Номинировать</button>
+                            </div>
+                            <div id="nominated-players"></div>
+                            <button onclick="clearNominations()" id="clearNominationsBtn">🗑️ Очистить номинации</button>
+                        </div>
+
+                        <div>
+                            <h3 id="votingTitle">Голосование</h3>
+                            <div id="voting-section"></div>
+                            <button onclick="resetVotes()" id="resetVotesBtn">🔄 Сбросить голоса</button>
+                        </div>
+
+                        <!-- Результаты голосования -->
+                        <div id="voting-results-section" class="hidden">
+                            <div class="voting-results">
+                                <h3 style="color: #2ed573; margin-bottom: 10px;" id="votingResultsTitle">📊 Результаты голосования</h3>
+                                <div id="voting-results-content"></div>
+                            </div>
+                        </div>
+
+                        <!-- Исключение игрока ПОСЛЕ голосования -->
+                        <div id="elimination-section" class="elimination-section hidden">
+                            <h3 id="eliminationTitle">❌ Исключение игрока</h3>
+                            <p style="margin-bottom: 10px; color: #ccc;" id="eliminationDesc">После подведения итогов голосования, исключите игрока из игры:</p>
+                            <select id="eliminatePlayer">
+                                <option value="" id="selectPlayerElimination">Выберите игрока для исключения</option>
+                            </select>
+                            <button class="danger" onclick="eliminatePlayer()" id="eliminateBtn">❌ Исключить из игры</button>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="secondary" onclick="startNight()" id="startNightBtn">🌙 Начать ночь</button>
+                        </div>
+                    </div>
+
+                    <div id="night-section" class="section hidden">
+                        <h2 id="nightPhaseTitle">Ночная фаза</h2>
+                        <div class="night-actions" id="night-actions">
+                            <!-- Действия ролей -->
+                        </div>
+                        <button class="success" onclick="processNight()" id="processNightBtn">🌅 Обработать ночь</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Лог игры -->
+        <div id="log-tab" class="tab-content hidden">
+            <div class="section">
+                <h2 id="gameLogTitle">Лог игры</h2>
+                <div id="game-log" class="game-log"></div>
+                <button onclick="clearLog()" id="clearLogBtn">🗑️ Очистить лог</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
