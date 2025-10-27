@@ -665,8 +665,7 @@ function emailLog() {
 
 function saveCustomSettings() {
     try {
-        const settingsData = JSON.stringify(customSettings);
-        window.settingsData = settingsData;
+        localStorage.setItem('mafia-custom-settings', JSON.stringify(customSettings));
     } catch (error) {
         console.log('Ошибка сохранения настроек:', error);
     }
@@ -674,7 +673,7 @@ function saveCustomSettings() {
 
 function loadCustomSettings() {
     try {
-        const saved = window.settingsData;
+        const saved = localStorage.getItem('mafia-custom-settings');
         if (saved) {
             customSettings = JSON.parse(saved);
 
@@ -811,11 +810,54 @@ function t(key) {
 // Загрузка данных
 function loadData() {
     loadCustomSettings();
-    updateRolesList();
+
+    try {
+        const saved = localStorage.getItem('mafia-game-state');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+
+            // Восстанавливаем только если есть активная игра
+            if (parsed.currentPhase !== 'setup' && parsed.players && parsed.players.length > 0) {
+                if (confirm(currentLanguage === 'ru' ?
+                    '🎮 Найдена сохранённая игра! Восстановить?' :
+                    '🎮 Saved game found! Restore?')) {
+                    gameData = parsed;
+
+                    if (gameData.currentPhase !== 'setup') {
+                        showTab('game');
+                        updateGameInterface();
+                    }
+
+                    updateLogDisplay();
+                    addToLog('🔄 ' + (currentLanguage === 'ru' ? 'Игра восстановлена' : 'Game restored'));
+                }
+            } else {
+                // Восстанавливаем только кастомные роли
+                if (parsed.roles) {
+                    const customRoles = parsed.roles.filter(r => r.isCustom);
+                    customRoles.forEach(customRole => {
+                        if (!gameData.roles.some(r => r.name === customRole.name)) {
+                            gameData.roles.push(customRole);
+                        }
+                    });
+                }
+            }
+        }
+
+        updateRolesList();
+    } catch (error) {
+        console.log('Ошибка загрузки игры:', error);
+        updateRolesList();
+    }
 }
 
 function saveData() {
-    // Функция для совместимости
+    try {
+        localStorage.setItem('mafia-game-state', JSON.stringify(gameData));
+        localStorage.setItem('mafia-language', currentLanguage);
+    } catch (error) {
+        console.log('Ошибка сохранения игры:', error);
+    }
 }
 
 // Управление вкладками
@@ -2200,3 +2242,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Защита от случайного закрытия страницы
+window.addEventListener('beforeunload', function(e) {
+    if (gameData.currentPhase !== 'setup' && gameData.players.some(p => p.alive)) {
+        e.preventDefault();
+        e.returnValue = '';
+        saveData(); // Сохраняем перед закрытием
+        return '';
+    }
+});
+
+// Автосохранение каждые 30 секунд
+setInterval(function() {
+    if (gameData.currentPhase !== 'setup') {
+        saveData();
+        console.log('Автосохранение выполнено');
+    }
+}, 30000);
